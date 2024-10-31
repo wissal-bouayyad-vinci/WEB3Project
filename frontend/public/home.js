@@ -1,4 +1,3 @@
-
 const main = document.querySelector('main');
 const container = document.createElement("div");
 
@@ -86,6 +85,27 @@ function createButtonContainer(buttonText, onClickAction) {
     };
 
     buttonContainer.appendChild(button);
+
+    if (buttonText === "Grayscale" || buttonText === "Blur") {
+        const slider = document.createElement("input");
+        slider.type = "range";
+        slider.min = "0";
+        slider.max = "100";
+        slider.value = "0"; 
+        slider.style.width = "100%";
+        slider.style.marginTop = "10px";
+
+        const sliderValueDisplay = document.createElement("span");
+        sliderValueDisplay.innerHTML = ` ${slider.value}`;
+        slider.oninput = () => {
+            sliderValueDisplay.innerHTML = ` ${slider.value}`;
+            console.log(`${buttonText} slider value:`, slider.value); 
+        };
+
+        buttonContainer.appendChild(slider);
+        buttonContainer.appendChild(sliderValueDisplay);
+    }
+
     return buttonContainer;
 }
 
@@ -129,7 +149,6 @@ container.appendChild(fileInput);
 const uploadButton = createButtonContainer("Upload Image", () => {
     fileInput.click(); 
 });
-
 
 buttonContainer.appendChild(uploadButton); 
 
