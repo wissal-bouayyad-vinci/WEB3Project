@@ -7,7 +7,7 @@ const loadWasmModule = async () => {
 };
 
 let isInverted = false;
-let basicOpacity = 100;
+let basicOpacity = 1;
 let basicBlur = 0;
 let basicGrayscale = 0;
 
