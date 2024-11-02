@@ -16,6 +16,7 @@
                 image[i] = r * (1 - intensity) + gray * intensity;
                 image[i + 1] = g * (1 - intensity) + gray * intensity;
                 image[i + 2] = b * (1 - intensity) + gray * intensity;
+                //std::cout << "grayscale" << std::endl;
             }
         }
         // Fonction pour appliquer un filtre d'inversion de couleur
@@ -27,50 +28,37 @@
             }
         }
 
-void blur(uint8_t* image, int width, int height, int radius) {
-    uint8_t* temp = new uint8_t[width * height * 4];
-
-    // Première passe horizontale
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            int r = 0, g = 0, b = 0, count = 0;
-            for (int k = -radius; k <= radius; k++) {
-                int nx = x + k;
-                if (nx >= 0 && nx < width) {  // Assurez-vous de ne pas dépasser les limites
-                    r += image[(y * width + nx) * 4];
-                    g += image[(y * width + nx) * 4 + 1];
-                    b += image[(y * width + nx) * 4 + 2];
-                    count++;
-                }
+        // Fonction pour appliquer un filtre de flou
+        void blur(uint8_t* image, int width, int height, int radius) {
+            uint8_t* temp = new uint8_t[width * height * 4];
+            for (int i = 0; i < width * height * 4; i++) {
+                temp[i] = image[i];
             }
-            temp[(y * width + x) * 4] = r / count;
-            temp[(y * width + x) * 4 + 1] = g / count;
-            temp[(y * width + x) * 4 + 2] = b / count;
-        }
-    }
 
-    // Deuxième passe verticale
-    for (int y = 0; y < height; y++) {
-        for (int x = 0; x < width; x++) {
-            int r = 0, g = 0, b = 0, count = 0;
-            for (int k = -radius; k <= radius; k++) {
-                int ny = y + k;
-                if (ny >= 0 && ny < height) {  // Assurez-vous de ne pas dépasser les limites
-                    r += temp[(ny * width + x) * 4];
-                    g += temp[(ny * width + x) * 4 + 1];
-                    b += temp[(ny * width + x) * 4 + 2];
-                    count++;
+            for (int i = 0; i < width * height * 4; i += 4) {
+                int r = 0;
+                int g = 0;
+                int b = 0;
+                int count = 0;
+                for (int x = -radius; x <= radius; x++) {
+                    for (int y = -radius; y <= radius; y++) {
+                        int nx = i + x * 4;
+                        int ny = i + y * width * 4;
+                        if (nx >= 0 && nx < width * height * 4 && ny >= 0 && ny < width * height * 4) {
+                            r += temp[nx];
+                            g += temp[nx + 1];
+                            b += temp[nx + 2];
+                            count++;
+                        }
+                    }
+                
                 }
+                image[i] = r / count;
+                image[i + 1] = g / count;
+                image[i + 2] = b / count;
             }
-            image[(y * width + x) * 4] = r / count;
-            image[(y * width + x) * 4 + 1] = g / count;
-            image[(y * width + x) * 4 + 2] = b / count;
+            delete[] temp;
         }
-    }
-
-    delete[] temp;
-}
-
 
         // filtre d'opacity
         void opacity(uint8_t* image, int width, int height, float opacity) {
