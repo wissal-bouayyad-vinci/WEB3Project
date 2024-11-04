@@ -156,6 +156,7 @@ const invertContainer = createButtonContainer("Invert Colors", () => {
 
 const opacityContainer = createButtonContainer("Opacity", (value) => {
     value = value / 100;
+    
     applyWasmFilter('opacity', value);
 }, 'opacity');
 
@@ -201,6 +202,7 @@ buttonContainer.appendChild(uploadButton);
 main.appendChild(container);
 
 function resetAllFilters() {
+    resetFilters();
     const sliders = document.querySelectorAll('input[type="range"]');
     sliders.forEach(slider => {
         slider.value = 0;

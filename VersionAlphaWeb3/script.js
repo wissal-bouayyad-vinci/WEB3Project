@@ -23,6 +23,7 @@ const applyFilter = async (filterName, imageData, width, height, ...args) => {
     // Apply the selected filter
     switch (filterName) {
         case 'grayscale':
+            console.log('basicOpacity:', basicOpacity);
             basicGrayscale = args[0];
             if(isInverted) {
                 wasm.colorInvert(ptr, width, height);
@@ -78,7 +79,7 @@ const applyFilter = async (filterName, imageData, width, height, ...args) => {
 const resetFilters = () => {
     console.log('Resetting filters');
     isInverted = false;        
-    basicOpacity = 100;       
+    basicOpacity = 1;       
     basicBlur = 0;            
     basicGrayscale = 0;       
 };
