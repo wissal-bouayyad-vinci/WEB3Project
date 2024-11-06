@@ -165,6 +165,7 @@ const deleteButtonContainer = createButtonContainer("Delete Image", () => {
     originalImage = null; 
     imageElement.style.display = "none";
     resetAllFilters();
+    fileInput.value = "";
 }, 'delete');
 
 const goBackContainer = createButtonContainer("Go back to original", () => {
