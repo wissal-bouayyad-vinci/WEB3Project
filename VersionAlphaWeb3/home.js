@@ -23,6 +23,7 @@ headerContainer.appendChild(description);
 container.appendChild(headerContainer);
 
 let uploadedImage = null;
+let originalImage = null; 
 const imageElement = document.createElement("img");
 imageElement.style.maxWidth = "600px";
 imageElement.style.maxHeight = "400px";
@@ -48,6 +49,7 @@ function displayImage(imageFile) {
     const reader = new FileReader();
     reader.onload = function(event) {
         uploadedImage = event.target.result;
+        originalImage = uploadedImage; 
         imageElement.src = uploadedImage;
         imageElement.style.display = "block";
         showButtons();
@@ -97,6 +99,10 @@ function createButtonContainer(buttonText, onClickAction, filterType) {
         slider.style.marginTop = "10px";
         slider.setAttribute("data-slider", filterType);
 
+        if(filterType === 'opacity') {
+            slider.value = 100;
+        }
+
         const sliderValueDisplay = document.createElement("span");
         sliderValueDisplay.innerHTML = ` ${slider.value}`;
         slider.oninput = () => {
@@ -121,17 +127,22 @@ async function applyWasmFilter(filterName, ...args) {
     canvas.width = imageElement.naturalWidth;
     canvas.height = imageElement.naturalHeight;
 
-    context.drawImage(imageElement, 0, 0);
-    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    const img = new Image();
+    img.src = originalImage; 
+    img.onload = () => {
+        context.drawImage(img, 0, 0);
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
-    const resultData = await applyFilter(filterName, imageData, canvas.width, canvas.height, ...args);
-    context.putImageData(resultData, 0, 0);
-    imageElement.src = canvas.toDataURL();
+        applyFilter(filterName, imageData, canvas.width, canvas.height, ...args).then(resultData => {
+            context.putImageData(resultData, 0, 0);
+            imageElement.src = canvas.toDataURL(); 
+        });
+    };
 }
 
 const grayscaleContainer = createButtonContainer("Grayscale", (value) => {
     value = value / 100;
--    applyWasmFilter('grayscale', value);
+    applyWasmFilter('grayscale', value);
 }, 'grayscale');
 
 const blurContainer = createButtonContainer("Blur", (value) => {
@@ -145,18 +156,24 @@ const invertContainer = createButtonContainer("Invert Colors", () => {
 
 const opacityContainer = createButtonContainer("Opacity", (value) => {
     value = value / 100;
+    
     applyWasmFilter('opacity', value);
 }, 'opacity');
 
 const deleteButtonContainer = createButtonContainer("Delete Image", () => {
     uploadedImage = null;
+    originalImage = null; 
     imageElement.style.display = "none";
+    resetAllFilters();
+    fileInput.value = "";
 }, 'delete');
 
 const goBackContainer = createButtonContainer("Go back to original", () => {
-    if (uploadedImage) {
-        imageElement.src = uploadedImage;
+    if (originalImage) {
+        imageElement.src = originalImage; 
     }
+    
+    resetAllFilters();
 }, 'go-back');
 
 buttonContainer.appendChild(deleteButtonContainer);
@@ -180,6 +197,21 @@ fileInput.onchange = (event) => {
 container.appendChild(fileInput);
 const uploadButton = createButtonContainer("Upload Image", () => {
     fileInput.click();
+    resetAllFilters();
 }, 'upload');
 buttonContainer.appendChild(uploadButton);
 main.appendChild(container);
+
+function resetAllFilters() {
+    resetFilters();
+    const sliders = document.querySelectorAll('input[type="range"]');
+    sliders.forEach(slider => {
+        slider.value = 0;
+        slider.nextElementSibling.innerHTML = `0`;
+
+        if(slider.dataset.slider === 'opacity') {
+            slider.value = 100;
+        slider.nextElementSibling.innerHTML = `100`;
+        }
+    });
+}

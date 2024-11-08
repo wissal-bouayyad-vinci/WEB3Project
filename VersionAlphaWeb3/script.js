@@ -1,70 +1,85 @@
-// Charger le module WebAssembly avec une mémoire initiale plus grande
+// Charger le module WebAssembly
 const loadWasmModule = async () => {
-    const memory = new WebAssembly.Memory({
-        initial: 1000,  // Alloue environ 64MB de mémoire initiale
-        maximum: 2000   // Maximum d'environ 128MB
-    });
-
     const wasmModule = await fetch('image_filters.wasm');
     const buffer = await wasmModule.arrayBuffer();
-    const { instance } = await WebAssembly.instantiate(buffer, {
-        env: {
-            memory: memory
-        }
-    });
+    const { instance } = await WebAssembly.instantiate(buffer);
     return instance.exports;
 };
 
-// Fonction pour appliquer un filtre
+let isInverted = false;
+let basicOpacity = 1;
+let basicBlur = 0;
+let basicGrayscale = 0;
+
 const applyFilter = async (filterName, imageData, width, height, ...args) => {
     const wasm = await loadWasmModule();
     const imageBuffer = new Uint8Array(imageData.data);
-    
-    // Vérifier si nous avons assez de mémoire
-    const requiredMemory = imageBuffer.length * 2; // Pour l'image et le buffer temporaire
-    const currentMemory = wasm.memory.buffer.byteLength;
-    
-    if (requiredMemory > currentMemory) {
-        const requiredPages = Math.ceil(requiredMemory / (64 * 1024));
-        try {
-            wasm.memory.grow(requiredPages);
-        } catch (e) {
-            throw new Error("Not enough memory available for this operation");
-        }
-    }
+    const ptr = wasm.malloc(imageBuffer.length); // Allocate memory in WASM
+    const wasmMemory = new Uint8Array(wasm.memory.buffer);
 
-    const ptr = wasm.malloc(imageBuffer.length);
-    if (!ptr) {
-        throw new Error("Memory allocation failed");
-    }
+    // Copy the image data to WASM memory
+    wasmMemory.set(imageBuffer, ptr);
 
-    try {
-        const wasmMemory = new Uint8Array(wasm.memory.buffer);
-        wasmMemory.set(imageBuffer, ptr);
-
-        // Appliquer le filtre sélectionné
-        switch (filterName) {
-            case 'blur':
-                wasm.blur(ptr, width, height, args[0]);
-                break;
-            case 'grayscale':
-                wasm.grayscale(ptr, width, height, args[0]);
-                break;
-            case 'colorInvert':
+    // Apply the selected filter
+    switch (filterName) {
+        case 'grayscale':
+            console.log('basicOpacity:', basicOpacity);
+            basicGrayscale = args[0];
+            if(isInverted) {
                 wasm.colorInvert(ptr, width, height);
-                break;
-            case 'opacity':
-                wasm.opacity(ptr, width, height, args[0]);
-                break;
-            default:
-                throw new Error('Unknown filter');
-        }
+            }
+            wasm.opacity(ptr, width, height, basicOpacity);
+            wasm.blur(ptr, width, height, basicBlur);
+            wasm.grayscale(ptr, width, height, basicGrayscale);
+            break;
+        case 'colorInvert':
+            isInverted = !isInverted;
+            wasm.opacity(ptr, width, height, basicOpacity);
+            wasm.grayscale(ptr, width, height, basicGrayscale);
+            wasm.blur(ptr, width, height, basicBlur);
+            wasm.colorInvert(ptr, width, height);
 
-        imageBuffer.set(wasmMemory.slice(ptr, ptr + imageBuffer.length));
-        imageData.data.set(imageBuffer);
-        
-        return imageData;
-    } finally {
-        wasm.free(ptr);
+            if(!isInverted) {
+                wasm.colorInvert(ptr, width, height);
+            }
+            break;
+        case 'blur':
+            basicBlur = args[0];
+            if(isInverted) {
+                wasm.colorInvert(ptr, width, height);
+            }
+            wasm.opacity(ptr, width, height, basicOpacity);
+            wasm.grayscale(ptr, width, height, basicGrayscale);
+            wasm.blur(ptr, width, height, basicBlur);
+            break;
+        case 'opacity':
+            basicOpacity = args[0];
+            if(isInverted) {
+                wasm.colorInvert(ptr, width, height);
+            }
+            wasm.grayscale(ptr, width, height, basicGrayscale);
+            wasm.blur(ptr, width, height, basicBlur);
+            wasm.opacity(ptr, width, height, basicOpacity);
+            break;
+        default:
+            console.error('Filtre non reconnu');
+            wasm.free(ptr); // Free allocated memory
+            return;
     }
+
+    // Copy the modified data back to the imageData object
+    imageBuffer.set(wasmMemory.slice(ptr, ptr + imageBuffer.length));
+    imageData.data.set(imageBuffer);
+
+    // Free allocated memory in WASM
+    wasm.free(ptr);
+    return imageData;
+};
+
+const resetFilters = () => {
+    console.log('Resetting filters');
+    isInverted = false;        
+    basicOpacity = 1;       
+    basicBlur = 0;            
+    basicGrayscale = 0;       
 };
