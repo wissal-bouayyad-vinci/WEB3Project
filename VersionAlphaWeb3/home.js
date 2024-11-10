@@ -25,8 +25,6 @@ container.appendChild(headerContainer);
 let uploadedImage = null;
 let originalImage = null; 
 const imageElement = document.createElement("img");
-imageElement.style.maxWidth = "600px";
-imageElement.style.maxHeight = "400px";
 imageElement.style.borderRadius = "10px";
 imageElement.style.display = "none";
 
@@ -51,11 +49,53 @@ function displayImage(imageFile) {
         uploadedImage = event.target.result;
         originalImage = uploadedImage; 
         imageElement.src = uploadedImage;
-        imageElement.style.display = "block";
-        showButtons();
+
+        const img = new Image();
+        img.src = uploadedImage;
+        img.onload = function () {
+            const naturalWidth = img.naturalWidth;
+            const naturalHeight = img.naturalHeight;
+
+            const minWidth = 250;
+            const minHeight = 500;
+            const maxWidth = 800;
+            const maxHeight = 600;
+
+            let newWidth = naturalWidth;
+            let newHeight = naturalHeight;
+
+            if (naturalWidth < minWidth || naturalHeight < minHeight) {
+                const widthRatio = minWidth / naturalWidth;
+                const heightRatio = minHeight / naturalHeight;
+                const scaleFactor = Math.max(widthRatio, heightRatio);
+
+                newWidth = naturalWidth * scaleFactor;
+                newHeight = naturalHeight * scaleFactor;
+
+                console.log("Image trop petite, agrandie.");
+            }
+
+            if (newWidth > maxWidth || newHeight > maxHeight) {
+                const widthRatio = maxWidth / newWidth;
+                const heightRatio = maxHeight / newHeight;
+                const scaleFactor = Math.min(widthRatio, heightRatio);
+
+                newWidth = newWidth * scaleFactor;
+                newHeight = newHeight * scaleFactor;
+
+                console.log("Image trop grande, réduite.");
+            }
+
+            imageElement.style.width = `${newWidth}px`;
+            imageElement.style.height = `${newHeight}px`;
+
+            imageElement.style.display = "block";
+            showButtons();
+        };
     };
     reader.readAsDataURL(imageFile);
 }
+
 
 function showButtons() {
     deleteButtonContainer.style.display = "block";
@@ -99,7 +139,7 @@ function createButtonContainer(buttonText, onClickAction, filterType) {
         slider.style.marginTop = "10px";
         slider.setAttribute("data-slider", filterType);
 
-        if(filterType === 'opacity') {
+        if (filterType === 'opacity') {
             slider.value = 100;
         }
 
@@ -146,7 +186,6 @@ const grayscaleContainer = createButtonContainer("Grayscale", (value) => {
 }, 'grayscale');
 
 const blurContainer = createButtonContainer("Blur", (value) => {
-    console.log('blur value:', value);
     applyWasmFilter('blur', value);
 }, 'blur');
 
@@ -156,7 +195,6 @@ const invertContainer = createButtonContainer("Invert Colors", () => {
 
 const opacityContainer = createButtonContainer("Opacity", (value) => {
     value = value / 100;
-    
     applyWasmFilter('opacity', value);
 }, 'opacity');
 
@@ -172,7 +210,6 @@ const goBackContainer = createButtonContainer("Go back to original", () => {
     if (originalImage) {
         imageElement.src = originalImage; 
     }
-    
     resetAllFilters();
 }, 'go-back');
 
@@ -209,9 +246,9 @@ function resetAllFilters() {
         slider.value = 0;
         slider.nextElementSibling.innerHTML = `0`;
 
-        if(slider.dataset.slider === 'opacity') {
+        if (slider.dataset.slider === 'opacity') {
             slider.value = 100;
-        slider.nextElementSibling.innerHTML = `100`;
+            slider.nextElementSibling.innerHTML = `100`;
         }
     });
 }
