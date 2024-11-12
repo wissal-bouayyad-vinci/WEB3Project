@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wasm Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .calculator {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        input, select {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        select {
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        p {
+            font-size: 18px;
+            margin-top: 20px;
+            color: #555;
+        }
+
+        #result {
+            font-weight: bold;
+            color: #000;
+        }
+
+        .powered-by {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Wasm Calculator</h1>
+        <input type="number" id="inputA" placeholder="Enter number A">
+        <input type="number" id="inputB" placeholder="Enter number B (optional)">
+
+        <select id="operation">
+            <option value="+">Add</option>
+            <option value="-">Subtract</option>
+            <option value="*">Multiply</option>
+            <option value="/">Divide</option>
+            <option value="%">Modulo</option>
+            <option value="factorial">Factorial (A only)</option>
+            <option value="power">Power (A^B)</option>
+            <option value="sqrt">Square Root (A only)</option>
+        </select>
+
+        <button onclick="calculate()">Calculate</button>
+
+        <p>Result: <span id="result">--</span></p>
+
+        <div class="powered-by">Powered by C++ & WebAssembly</div>
+    </div>
+
+    <script src="calculator.js"></script>
+    <script>
+        // Charger le module Wasm et gérer les calculs
+        Module().then((module) => {
+            const add = module._add;
+            const subtract = module._subtract;
+            const multiply = module._multiply;
+            const divide = module._divide;
+            const modulo = module._modulo;
+            const factorial = module._factorial;
+            const power = module._power;
+            const squareRoot = module._squareRoot;
+
+            window.calculate = function() {
+                const a = parseInt(document.getElementById('inputA').value);
+                const b = parseInt(document.getElementById('inputB').value || 0);  // b est facultatif
+                const operation = document.getElementById('operation').value;
+                let result;
+
+                switch (operation) {
+                    case '+':
+                        result = add(a, b);
+                        break;
+                    case '-':
+                        result = subtract(a, b);
+                        break;
+                    case '*':
+                        result = multiply(a, b);
+                        break;
+                    case '/':
+                        result = divide(a, b);
+                        break;
+                    case '%':
+                        result = modulo(a, b);
+                        break;
+                    case 'factorial':
+                        result = factorial(a);
+                        break;
+                    case 'power':
+                        result = power(a, b);
+                        break;
+                    case 'sqrt':
+                        result = squareRoot(a);
+                        break;
+                    default:
+                        result = "Invalid operation";
+                }
+
+                document.getElementById('result').innerText = result;
+            };
+        });
+    </script>
+</body>
+</html>

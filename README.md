@@ -4,10 +4,11 @@
 
 ### VERSION 1
 1. Installer Python (version du Microsoft Store) si ce n'est pas déjà fait.
-2. Ouvrir le dossier du projet avec Windows PowerShell.
+2. Ouvrir le dossier du projet (Calculatrice ou EditeurPhoto) avec Windows PowerShell.
 3. Lancer la commande :
    ```bash
-   python -m http.server
+   python -m http.server 8000
+4. Se rendre sur le localhost que vous avez indiqué
 
 ### VERSION 2
 1. Installer le module Live Server dans votre IDE

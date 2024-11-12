@@ -17,6 +17,10 @@ const applyFilter = async (filterName, imageData, width, height, ...args) => {
     const ptr = wasm.malloc(imageBuffer.length); // Allocate memory in WASM
     const wasmMemory = new Uint8Array(wasm.memory.buffer);
 
+
+    console.log('Taille de mémoire actuelle :', wasm.memory.buffer.byteLength);
+    console.log('Taille de l\'image :', imageBuffer.length);
+    
     // Copy the image data to WASM memory
     wasmMemory.set(imageBuffer, ptr);
 
