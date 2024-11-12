@@ -1,61 +1,65 @@
 #include <iostream>
+#include <cmath>
 
-extern "C" {
-
-// Addition
-long long add(int a, int b) {
+// Fonction d'addition
+extern "C" double add(double a, double b) {
     return a + b;
 }
 
-// Soustraction
-long long subtract(int a, int b) {
+// Fonction de soustraction
+extern "C" double subtract(double a, double b) {
     return a - b;
 }
 
-// Multiplication
-long long multiply(int a, int b) {
+// Fonction de multiplication
+extern "C" double multiply(double a, double b) {
     return a * b;
 }
 
-// Division
-long long divide(int a, int b) {
+// Fonction de division
+extern "C" double divide(double a, double b) {
     if (b == 0) {
-        return 0; // Gérer la division par zéro
+        std::cerr << "Erreur: division par zéro" << std::endl;
+        return 0;  // Retourne 0 en cas d'erreur de division
+    } else {
+        return a / b;
     }
-    return a / b;
 }
 
-// Modulo
-long long modulo(int a, int b) {
+// Fonction de modulo
+extern "C" double modulo(double a, double b) {
     if (b == 0) {
-        return 0; // Gérer la division par zéro
+        std::cerr << "Erreur: division par zéro" << std::endl;
+        return 0;
+    } else {
+        return fmod(a, b);  // fmod pour les doubles
     }
-    return a % b;
-
 }
 
-// Factorial
-long long factorial(int a) {
-    if (a == 0) {
-        return 1;
+// Fonction de calcul de factorielle (approximation pour les petits entiers)
+extern "C" double factorial(int a) {
+    if (a < 0) {
+        std::cerr << "Erreur: facteur négatif pour la factorielle" << std::endl;
+        return 0;
     }
-    return a * factorial(a - 1);
-}
 
-// Power
-long long power(int a, int b) {
-    long long result = 1;
-    for (int i = 0; i < b; i++) {
-        result *= a;
+    double result = 1;
+    for (int i = 1; i <= a; i++) {
+        result *= i;
     }
     return result;
 }
 
-// Square root
-double squareRoot(int a) {
-    return sqrt(a);
+// Fonction de puissance
+extern "C" double power(double base, int exp) {
+    return pow(base, exp);
 }
 
-
-
+// Fonction de racine carrée
+extern "C" double squareRoot(double a) {
+    if (a < 0) {
+        std::cerr << "Erreur: racine carrée d'un nombre négatif" << std::endl;
+        return -1;  // Retourne -1 en cas d'erreur
+    }
+    return sqrt(a);
 }
