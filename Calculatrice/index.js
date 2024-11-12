@@ -1,46 +1,62 @@
-// Charger le module WebAssembly
-Module().then((module) => {
+// Attendre que le module WebAssembly soit chargé
+Module.onRuntimeInitialized = () => {
     // Fonctions Wasm exposées
-    const add = module._add;
-    const subtract = module._subtract;
-    const multiply = module._multiply;
-    const divide = module._divide;
-    const modulo = module._modulo;
-    const factorial = module._factorial;
-    const power = module._power;
-    const squareRoot = module._squareRoot;
+    const add = Module._add;
+    const subtract = Module._subtract;
+    const multiply = Module._multiply;
+    const divide = Module._divide;
+    const modulo = Module._modulo;
+    const factorial = Module._factorial;
+    const power = Module._power;
+    const squareRoot = Module._squareRoot;
 
-    // Fonction pour gérer les opérations
-    function calculate(operation, a, b = 0) {
-        a = Number(a);  // Convertir en nombre
-        b = Number(b);  // Convertir en nombre
+    // Fonction de calcul
+    function calculate() {
+        const a = parseFloat(document.getElementById('inputA').value);
+        const b = parseFloat(document.getElementById('inputB').value || 0);
+        const operation = document.getElementById('operation').value;
+        let result;
 
-        switch (operation) {
-            case '+':
-                return add(a, b);
-            case '-':
-                return subtract(a, b);
-            case '*':
-                return multiply(a, b);
-            case '/':
-                return divide(a, b);
-            case '%':
-                return modulo(a, b);
-            case 'factorial':
-                return factorial(a);
-            case 'power':
-                return power(a, b);
-            case 'sqrt':
-                return squareRoot(a);
-            default:
-                return "Invalid operation";
+        try {
+            switch (operation) {
+                case '+':
+                    result = add(a, b);
+                    break;
+                case '-':
+                    result = subtract(a, b);
+                    break;
+                case '*':
+                    result = multiply(a, b);
+                    break;
+                case '/':
+                    if (b === 0) throw new Error("Error: Division by zero");
+                    result = divide(a, b);
+                    break;
+                case '%':
+                    if (b === 0) throw new Error("Error: Modulo by zero");
+                    result = modulo(a, b);
+                    break;
+                case 'factorial':
+                    if (a < 0) throw new Error("Error: Negative factorial");
+                    result = factorial(a);
+                    break;
+                case 'power':
+                    result = power(a, b);
+                    break;
+                case 'sqrt':
+                    if (a < 0) throw new Error("Error: Square root of negative number");
+                    result = squareRoot(a);
+                    break;
+                default:
+                    result = "Invalid operation";
+            }
+            document.getElementById('result').innerText = result;
+
+        } catch (error) {
+            document.getElementById('result').innerText = error.message;
         }
     }
 
-    // Exemple d'appel
-    console.log("3 + 4 =", calculate('+', 3, 4));
-    console.log("5 % 3 =", calculate('%', 5, 3));
-    console.log("Factorial de 5 =", calculate('factorial', 5));
-    console.log("2 puissance 3 =", calculate('power', 2, 3));
-    console.log("Racine de 16 =", calculate('sqrt', 16));
-});
+    // Ajouter un événement au bouton
+    document.getElementById('calculateBtn').addEventListener('click', calculate);
+};
