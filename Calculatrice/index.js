@@ -57,6 +57,21 @@ Module.onRuntimeInitialized = () => {
         }
     }
 
-    // Ajouter un événement au bouton
+    // Gérer la visibilité de `inputB` en fonction de l'opération
+    function updateInputBVisibility() {
+        const operation = document.getElementById('operation').value;
+        const inputB = document.getElementById('inputB');
+        if (operation === 'factorial' || operation === 'sqrt') {
+            inputB.style.display = 'none';
+            inputB.value = ''; 
+        } else {
+            inputB.style.display = ''; 
+        }
+    }
+
+    // Ajouter les événements
+    document.getElementById('operation').addEventListener('change', updateInputBVisibility);
     document.getElementById('calculateBtn').addEventListener('click', calculate);
+
+    updateInputBVisibility();
 };
