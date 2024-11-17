@@ -43,6 +43,7 @@ imageButtonContainer.appendChild(buttonContainer);
 imageButtonContainer.appendChild(imageElement);
 container.appendChild(imageButtonContainer);
 
+//afficher l'image
 function displayImage(imageFile) {
     const reader = new FileReader();
     reader.onload = function(event) {
@@ -63,7 +64,8 @@ function displayImage(imageFile) {
 
             let newWidth = naturalWidth;
             let newHeight = naturalHeight;
-
+            
+            // Resize the image if it's too small or too big
             if (naturalWidth < minWidth || naturalHeight < minHeight) {
                 const widthRatio = minWidth / naturalWidth;
                 const heightRatio = minHeight / naturalHeight;
@@ -72,7 +74,7 @@ function displayImage(imageFile) {
                 newWidth = naturalWidth * scaleFactor;
                 newHeight = naturalHeight * scaleFactor;
 
-                console.log("Image trop petite, agrandie.");
+                console.log("Image trop petite à l'écran, agrandie.");
             }
 
             if (newWidth > maxWidth || newHeight > maxHeight) {
@@ -83,7 +85,7 @@ function displayImage(imageFile) {
                 newWidth = newWidth * scaleFactor;
                 newHeight = newHeight * scaleFactor;
 
-                console.log("Image trop grande, réduite.");
+                console.log("Image trop grande à l'écran, réduite.");
             }
 
             imageElement.style.width = `${newWidth}px`;
@@ -156,11 +158,13 @@ function createButtonContainer(buttonText, onClickAction, filterType) {
     return buttonContainer;
 }
 
+// Récupérer la valeur du slider
 function getSliderValue(filterType) {
     const slider = document.querySelector(`input[data-slider="${filterType}"]`);
     return slider ? parseInt(slider.value) : 0;
 }
 
+// Appliquer le filtre en appelant le back js, qui lui meme appeler le wasm
 async function applyWasmFilter(filterName, ...args) {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
@@ -239,6 +243,7 @@ const uploadButton = createButtonContainer("Upload Image", () => {
 buttonContainer.appendChild(uploadButton);
 main.appendChild(container);
 
+// Réinitialiser les filtres et les sliders
 function resetAllFilters() {
     resetFilters();
     const sliders = document.querySelectorAll('input[type="range"]');

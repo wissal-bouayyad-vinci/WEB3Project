@@ -18,6 +18,7 @@ const applyFilter = async (filterName, imageData, width, height, ...args) => {
     const wasmMemory = new Uint8Array(wasm.memory.buffer);
 
 
+    // if the image is too large, the functions will not work :(
     console.log('Taille de mémoire actuelle :', wasm.memory.buffer.byteLength);
     console.log('Taille de l\'image :', imageBuffer.length);
     
@@ -80,6 +81,7 @@ const applyFilter = async (filterName, imageData, width, height, ...args) => {
     return imageData;
 };
 
+// Reset all filters to their default values 
 const resetFilters = () => {
     console.log('Resetting filters');
     isInverted = false;        
