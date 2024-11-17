@@ -20,7 +20,7 @@
 
 
 ## BUT FONCTIONNEL DE L'APPLICATION
-L'objectif de notre application est de permettre la modification d'images grâce à sept fonctionnalités, notamment :
+L'objectif de notre application "EditeurPhoto" est de permettre la modification d'images grâce à sept fonctionnalités, notamment :
 
     suppression de l'image,
     téléchargement d'une image,
@@ -30,10 +30,28 @@ L'objectif de notre application est de permettre la modification d'images grâce
     inversion des couleurs,
     ajustement de l'opacité.
 
-
+ L'objectif de notre application "Calculatrice" est de permettre différents calculs, notamment:
+ ```bash
+ Addition,
+ Soustraction,
+ Multiplication,
+ Division,
+ Modulo,
+ Puissance,
+ Factorielle,
+ Racine carrée
+   ```
 
 ## TYPE D'ARCHITECTURE
-SPA -> Single Page Application
+
+### Editeur de photo
+SPA -> Single Page Application,
 CSR -> Client Side Rendering
 
+### Calculatrice
+Page web statique,
+CSR -> Client Side Rendering
 
+## LIENS VERS LES SITES DEPLOYES
+https://web3-group03-editeur-photo.netlify.app/
+https://web3-group03-calculatrice.netlify.app/
